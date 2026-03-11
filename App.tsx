@@ -19,14 +19,14 @@ const AppContent: React.FC = () => {
       {/* Background Decorative Elements */}
       <div className="glow-mesh top-[-10%] left-[-10%]" />
       <div className="glow-mesh bottom-[-10%] right-[-10%] opacity-50" />
-      
-      <Navbar onAskMore={() => {}} />
-      
+
+      <Navbar onAskMore={() => { }} />
+
       <main className="relative z-10">
         <Hero />
-        
+
         <Services />
-        
+
         {/* AI Tech Section */}
         <section className="py-20 relative">
           <div className="container mx-auto px-6">
@@ -49,7 +49,7 @@ const AppContent: React.FC = () => {
       </main>
 
       <Footer />
-      <WhatsAppButton phoneNumber="51900000000" />
+      <WhatsAppButton phoneNumber="34671214777" />
     </div>
   );
 };
