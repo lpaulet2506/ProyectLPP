@@ -8,7 +8,6 @@ gsap.registerPlugin(useGSAP, ScrollTrigger);
 const TechShowcase: React.FC = () => {
   const containerRef = useRef<HTMLDivElement>(null);
 
-  // Textos orientados al desarrollo de software/servicios
   const sections = [
     {
       title: "Desarrollo a Medida",
@@ -36,88 +35,99 @@ const TechShowcase: React.FC = () => {
   useGSAP(() => {
     const panels = gsap.utils.toArray('.tech-slide') as HTMLElement[];
 
-    // Animación estilo "Continuous Sections" con ScrollTrigger
-    // Fija todo el contenedor y hace una transición de paneles vertically
-    ScrollTrigger.create({
-      trigger: containerRef.current,
-      start: "top top",
-      end: "+=" + (panels.length * 100) + "%", // Controla cuánta duración de scroll toma
-      pin: true,
-      scrub: 1,
-      animation: gsap.timeline()
-        // Empieza el estado: sólo el panel 1 (índice 0) está visible.
-        // Hacemos un loop sobre los siguientes paneles para animarlos entrando 
-        .to(panels.slice(1), {
-          yPercent: -100, // Cada uno sube al 0 (su posición inicial era +100%)
-          ease: "none",
-          stagger: 0.5, // El stagger maneja la secuencia
-        })
+    // Set initial configuration
+    gsap.set(panels, { zIndex: (i) => i });
+    
+    // Panel 0 starts visible, 1 and 2 start below the screen
+    if (panels.length > 1) {
+      gsap.set(panels.slice(1), { yPercent: 100 });
+    }
+
+    const tl = gsap.timeline({
+      scrollTrigger: {
+        trigger: containerRef.current,
+        start: "top top",
+        end: () => "+=" + (panels.length * 100) + "%", // Extend scroll distance
+        pin: true,
+        scrub: 1, // Smooth scrubbing
+      }
     });
 
-    // Parallax y desvanecimiento para el texto interior de las imágenes
     panels.forEach((panel, i) => {
-      // Configuraciones de parallax si es necesario
-      if (i > 0) {
-        gsap.set(panel, { yPercent: 100 }); // Inicializa los paneles inferiores abajo
-      }
-      
-      const img = panel.querySelector('.slide-bg');
-      const content = panel.querySelector('.slide-content');
-      
-      if (img && content && i > 0) {
-        gsap.from(img, {
-          yPercent: 30, // La imagen se mueve un poco más lento que el contenedor
-          scale: 1.2,
-          scrollTrigger: {
-            trigger: containerRef.current,
-            start: "top top+=" + (i * window.innerHeight),
-            end: "+=" + window.innerHeight,
-            scrub: true,
+      // First panel text animation on enter (non-scrubbed)
+      if (i === 0) {
+        gsap.fromTo(panel.querySelectorAll('.slide-text-elem'), 
+          { y: 50, opacity: 0, rotationX: -20 },
+          { 
+            y: 0, opacity: 1, rotationX: 0, 
+            duration: 1, stagger: 0.15, ease: 'power3.out',
+            scrollTrigger: {
+              trigger: containerRef.current,
+              start: "top center",
+            }
           }
-        });
-        
-        gsap.from(content, {
-          opacity: 0,
-          y: 100,
-          scrollTrigger: {
-             trigger: containerRef.current,
-             start: "top top+=" + ((i - 0.5) * window.innerHeight),
-             end: "+=" + window.innerHeight / 2,
-             scrub: true,
-          }
-        });
+        );
+      } else {
+        // Elements to animate inside the incoming panel
+        const textElements = panel.querySelectorAll('.slide-text-elem');
+        const img = panel.querySelector('.slide-bg');
+
+        // Note: tl.to() acts sequentially on the scrubbed timeline.
+        // We slide the panel up into view
+        tl.to(panel, {
+          yPercent: 0,
+          ease: "none",
+          duration: 1 // Relative duration in the scrub timeline
+        }, "+=0.1"); // Small pause before the next slide comes up
+
+        // Image subtle scale/parallax inside the slide as it moves up
+        if (img) {
+          tl.fromTo(img, 
+            { scale: 1.3, yPercent: 20 }, 
+            { scale: 1, yPercent: 0, duration: 1, ease: 'none' }, 
+            "<" // Run at the same time as panel sliding up
+          );
+        }
+
+        // Text staggering animations happening during the slide up
+        if (textElements.length > 0) {
+          tl.fromTo(textElements, 
+            { y: 80, opacity: 0, rotationX: -30, scale: 0.9 }, 
+            { y: 0, opacity: 1, rotationX: 0, scale: 1, duration: 0.5, stagger: 0.1, ease: "power2.out" }, 
+            "<0.3" // Starts slightly after the panel begins sliding up
+          );
+        }
       }
     });
 
   }, { scope: containerRef });
 
   return (
-    <section ref={containerRef} className="h-screen w-full relative overflow-hidden bg-black">
+    <section ref={containerRef} className="h-screen w-full relative overflow-hidden bg-slate-950">
       
       {sections.map((sec, index) => (
         <div 
           key={index} 
-          className="tech-slide absolute inset-0 w-full h-full flex flex-col items-center justify-center overflow-hidden z-10"
-          style={{ zIndex: index + 10 }}
+          className="tech-slide absolute inset-0 w-full h-full flex flex-col items-center justify-center overflow-hidden"
         >
-          {/* Fondo */}
-          <div className="absolute inset-0 w-full h-full">
-            <img src={sec.img} alt={sec.title} className="slide-bg w-full h-full object-cover opacity-50" />
-            <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-black/60 to-black/90"></div>
+          {/* Fondo sólido opaco para evitar que el slide anterior se transparente */}
+          <div className="absolute inset-0 w-full h-full bg-slate-950">
+            <img src={sec.img} alt={sec.title} className="slide-bg w-full h-full object-cover opacity-40 mix-blend-luminosity" />
+            <div className="absolute inset-0 bg-gradient-to-b from-slate-950/40 via-slate-950/80 to-slate-950"></div>
           </div>
           
-          {/* Contenido (Textos de Servicios de Desarrollo) */}
-          <div className="slide-content relative z-20 flex flex-col items-center justify-center p-8 max-w-4xl text-center">
+          {/* Contenido Texto */}
+          <div className="slide-content relative z-20 flex flex-col items-center justify-center p-8 max-w-4xl text-center perspective-1000">
             
-            <div className={`mb-6 px-5 py-2 rounded-full border border-white/20 bg-white/5 backdrop-blur-md font-bold text-xs tracking-[0.2em] uppercase`}>
+            <div className="slide-text-elem mb-6 px-5 py-2 rounded-full border border-white/20 bg-white/5 backdrop-blur-md font-bold text-xs tracking-[0.2em] uppercase">
               <span className={`text-transparent bg-clip-text bg-gradient-to-r ${sec.color}`}>{sec.badge}</span>
             </div>
             
-            <h2 className="text-5xl md:text-7xl font-black text-white mb-6 tracking-tighter drop-shadow-2xl">
+            <h2 className="slide-text-elem text-5xl md:text-7xl font-black text-white mb-6 tracking-tighter drop-shadow-2xl">
               {sec.title}
             </h2>
             
-            <p className="text-xl md:text-2xl text-slate-300 leading-relaxed font-light drop-shadow-md">
+            <p className="slide-text-elem text-xl md:text-2xl text-slate-300 leading-relaxed font-light drop-shadow-md">
               {sec.subtitle}
             </p>
             
@@ -125,9 +135,9 @@ const TechShowcase: React.FC = () => {
         </div>
       ))}
 
-      {/* Indicador de scroll */}
-      <div className="absolute bottom-10 left-1/2 -translate-x-1/2 z-50 flex flex-col items-center gap-2 opacity-50">
-        <span className="text-[10px] text-white mono uppercase tracking-widest">Scroll para explorar</span>
+      {/* Indicador de scroll global superior */}
+      <div className="absolute bottom-10 left-1/2 -translate-x-1/2 z-50 flex flex-col items-center gap-2 opacity-50 mix-blend-screen pointer-events-none">
+        <span className="text-[10px] text-white mono uppercase tracking-widest">Sigue bajando</span>
         <div className="w-px h-12 bg-gradient-to-b from-white to-transparent"></div>
       </div>
 
