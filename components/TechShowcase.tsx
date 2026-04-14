@@ -1,6 +1,4 @@
-
 import React, { useRef } from 'react';
-import { useLanguage } from '../src/LanguageContext';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useGSAP } from '@gsap/react';
@@ -8,37 +6,84 @@ import { useGSAP } from '@gsap/react';
 gsap.registerPlugin(useGSAP, ScrollTrigger);
 
 const TechShowcase: React.FC = () => {
-  const { t } = useLanguage();
   const containerRef = useRef<HTMLDivElement>(null);
-  const wrapperRef = useRef<HTMLDivElement>(null);
+
+  // Textos orientados al desarrollo de software/servicios
+  const sections = [
+    {
+      title: "Desarrollo a Medida",
+      subtitle: "Soluciones de software de vanguardia adaptadas exactamente a la lógica de negocio de tu empresa, garantizando rendimiento escalable y arquitecturas modulares listas para el futuro.",
+      img: "/assets/images/tech_chip.png",
+      badge: "Ingeniería de Software",
+      color: "from-indigo-600 to-cyan-500"
+    },
+    {
+      title: "Arquitectura Cloud / API",
+      subtitle: "Implementación de redes seguras, microservicios y bases de datos de alto rendimiento. Conectamos tus sistemas en la nube para que tus aplicaciones fluyan de manera ininterrumpida globalmente.",
+      img: "/assets/images/tech_server.png",
+      badge: "Infraestructura",
+      color: "from-purple-600 to-pink-500"
+    },
+    {
+      title: "IA y Automatización",
+      subtitle: "Integramos algoritmos de inteligencia artificial, machine learning y flujos de trabajo automatizados para que tu software trabaje por ti 24/7 con una precisión humana.",
+      img: "/assets/images/tech_code.png",
+      badge: "Next Gen",
+      color: "from-emerald-500 to-teal-400"
+    }
+  ];
 
   useGSAP(() => {
-    const panels = gsap.utils.toArray('.tech-panel');
-    
-    gsap.to(panels, {
-      xPercent: -100 * (panels.length - 1),
-      ease: "none",
-      scrollTrigger: {
-        trigger: containerRef.current,
-        pin: true,
-        scrub: 1,
-        // snap: 1 / (panels.length - 1),
-        end: () => "+=" + (wrapperRef.current?.offsetWidth || window.innerWidth) * 2,
-      }
+    const panels = gsap.utils.toArray('.tech-slide') as HTMLElement[];
+
+    // Animación estilo "Continuous Sections" con ScrollTrigger
+    // Fija todo el contenedor y hace una transición de paneles vertically
+    ScrollTrigger.create({
+      trigger: containerRef.current,
+      start: "top top",
+      end: "+=" + (panels.length * 100) + "%", // Controla cuánta duración de scroll toma
+      pin: true,
+      scrub: 1,
+      animation: gsap.timeline()
+        // Empieza el estado: sólo el panel 1 (índice 0) está visible.
+        // Hacemos un loop sobre los siguientes paneles para animarlos entrando 
+        .to(panels.slice(1), {
+          yPercent: -100, // Cada uno sube al 0 (su posición inicial era +100%)
+          ease: "none",
+          stagger: 0.5, // El stagger maneja la secuencia
+        })
     });
 
-    // Parallax effect on images
-    panels.forEach((panel: any, i) => {
-      const img = panel.querySelector('img');
-      if (img) {
-        gsap.to(img, {
-          xPercent: 20,
-          ease: "none",
+    // Parallax y desvanecimiento para el texto interior de las imágenes
+    panels.forEach((panel, i) => {
+      // Configuraciones de parallax si es necesario
+      if (i > 0) {
+        gsap.set(panel, { yPercent: 100 }); // Inicializa los paneles inferiores abajo
+      }
+      
+      const img = panel.querySelector('.slide-bg');
+      const content = panel.querySelector('.slide-content');
+      
+      if (img && content && i > 0) {
+        gsap.from(img, {
+          yPercent: 30, // La imagen se mueve un poco más lento que el contenedor
+          scale: 1.2,
           scrollTrigger: {
             trigger: containerRef.current,
-            start: "top top",
-            end: () => "+=" + (wrapperRef.current?.offsetWidth || window.innerWidth) * 2,
+            start: "top top+=" + (i * window.innerHeight),
+            end: "+=" + window.innerHeight,
             scrub: true,
+          }
+        });
+        
+        gsap.from(content, {
+          opacity: 0,
+          y: 100,
+          scrollTrigger: {
+             trigger: containerRef.current,
+             start: "top top+=" + ((i - 0.5) * window.innerHeight),
+             end: "+=" + window.innerHeight / 2,
+             scrub: true,
           }
         });
       }
@@ -47,62 +92,45 @@ const TechShowcase: React.FC = () => {
   }, { scope: containerRef });
 
   return (
-    <section ref={containerRef} className="h-screen w-full overflow-hidden bg-slate-950 relative border-y border-white/5">
-      <div className="absolute top-10 left-10 z-20">
-        <div className="inline-block px-4 py-1.5 rounded-full bg-black/40 border border-white/10 text-white text-sm font-medium mono tracking-widest uppercase backdrop-blur-md">
-          Tech Showcase
-        </div>
-      </div>
+    <section ref={containerRef} className="h-screen w-full relative overflow-hidden bg-black">
       
-      <div ref={wrapperRef} className="flex flex-nowrap h-full w-[300vw]">
-        {/* Panel 1 */}
-        <div className="tech-panel w-screen h-full flex-shrink-0 relative flex items-center justify-center overflow-hidden">
-          <div className="absolute inset-0 w-[120%] h-full -left-[10%]">
-             <img src="/assets/images/tech_chip.png" alt="Hardware Integration" className="w-full h-full object-cover opacity-50" />
+      {sections.map((sec, index) => (
+        <div 
+          key={index} 
+          className="tech-slide absolute inset-0 w-full h-full flex flex-col items-center justify-center overflow-hidden z-10"
+          style={{ zIndex: index + 10 }}
+        >
+          {/* Fondo */}
+          <div className="absolute inset-0 w-full h-full">
+            <img src={sec.img} alt={sec.title} className="slide-bg w-full h-full object-cover opacity-50" />
+            <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-black/60 to-black/90"></div>
           </div>
-          <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent"></div>
           
-          <div className="relative z-10 glass p-12 flex flex-col items-center justify-center rounded-[3rem] w-full max-w-2xl text-center backdrop-blur-xl border border-white/10 shadow-2xl translate-y-10">
-            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-indigo-500 to-cyan-400 flex items-center justify-center mb-6 shadow-lg shadow-cyan-500/20">
-              <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"></path></svg>
+          {/* Contenido (Textos de Servicios de Desarrollo) */}
+          <div className="slide-content relative z-20 flex flex-col items-center justify-center p-8 max-w-4xl text-center">
+            
+            <div className={`mb-6 px-5 py-2 rounded-full border border-white/20 bg-white/5 backdrop-blur-md font-bold text-xs tracking-[0.2em] uppercase`}>
+              <span className={`text-transparent bg-clip-text bg-gradient-to-r ${sec.color}`}>{sec.badge}</span>
             </div>
-            <h2 className="text-4xl font-black text-white mb-4 tracking-tight">Hardware Integrado</h2>
-            <p className="text-slate-400 text-lg leading-relaxed">Microchips OLED y circuitos con trazas de altísima precisión diseñados para el máximo rendimiento y control físico.</p>
+            
+            <h2 className="text-5xl md:text-7xl font-black text-white mb-6 tracking-tighter drop-shadow-2xl">
+              {sec.title}
+            </h2>
+            
+            <p className="text-xl md:text-2xl text-slate-300 leading-relaxed font-light drop-shadow-md">
+              {sec.subtitle}
+            </p>
+            
           </div>
         </div>
-        
-        {/* Panel 2 */}
-        <div className="tech-panel w-screen h-full flex-shrink-0 relative flex items-center justify-center overflow-hidden">
-          <div className="absolute inset-0 w-[120%] h-full -left-[10%]">
-            <img src="/assets/images/tech_server.png" alt="Cloud Data" className="w-full h-full object-cover opacity-50" />
-          </div>
-          <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent"></div>
-          
-          <div className="relative z-10 glass p-12 flex flex-col items-center justify-center rounded-[3rem] w-full max-w-2xl text-center backdrop-blur-xl border border-white/10 shadow-2xl translate-y-10">
-             <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center mb-6 shadow-lg shadow-purple-500/20">
-              <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
-            </div>
-            <h2 className="text-4xl font-black text-white mb-4 tracking-tight">Arquitectura Server-side</h2>
-            <p className="text-slate-400 text-lg leading-relaxed">Centros de datos en la nube ultrarrápidos y escalables con luces LED para monitoreo en la matriz geométrica.</p>
-          </div>
-        </div>
-        
-        {/* Panel 3 */}
-        <div className="tech-panel w-screen h-full flex-shrink-0 relative flex items-center justify-center overflow-hidden">
-          <div className="absolute inset-0 w-[120%] h-full -left-[10%]">
-             <img src="/assets/images/tech_code.png" alt="Software Logic" className="w-full h-full object-cover opacity-50" />
-          </div>
-          <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent"></div>
-          
-          <div className="relative z-10 glass p-12 flex flex-col items-center justify-center rounded-[3rem] w-full max-w-2xl text-center backdrop-blur-xl border border-white/10 shadow-2xl translate-y-10">
-             <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-emerald-400 to-teal-500 flex items-center justify-center mb-6 shadow-lg shadow-teal-500/20">
-              <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path></svg>
-            </div>
-            <h2 className="text-4xl font-black text-white mb-4 tracking-tight">Software Holográfico</h2>
-            <p className="text-slate-400 text-lg leading-relaxed">Algoritmos limpios e interfaces de datos abstractas fluyendo sobre dispositivos de hardware, calidad impecable.</p>
-          </div>
-        </div>
+      ))}
+
+      {/* Indicador de scroll */}
+      <div className="absolute bottom-10 left-1/2 -translate-x-1/2 z-50 flex flex-col items-center gap-2 opacity-50">
+        <span className="text-[10px] text-white mono uppercase tracking-widest">Scroll para explorar</span>
+        <div className="w-px h-12 bg-gradient-to-b from-white to-transparent"></div>
       </div>
+
     </section>
   );
 };
