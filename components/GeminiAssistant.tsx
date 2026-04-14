@@ -2,6 +2,11 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { GoogleGenAI } from "@google/genai";
 import { useLanguage } from '../src/LanguageContext';
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { useGSAP } from '@gsap/react';
+
+gsap.registerPlugin(useGSAP, ScrollTrigger);
 
 const GeminiAssistant: React.FC = () => {
   const { t } = useLanguage();
@@ -9,12 +14,30 @@ const GeminiAssistant: React.FC = () => {
   const [response, setResponse] = useState('');
   const [loading, setLoading] = useState(false);
   const responseRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (response && responseRef.current) {
       responseRef.current.scrollIntoView({ behavior: 'smooth' });
     }
   }, [response]);
+
+  useGSAP(() => {
+    gsap.fromTo(containerRef.current, 
+      { opacity: 0, y: 50, scale: 0.95 },
+      { 
+        opacity: 1, 
+        y: 0, 
+        scale: 1,
+        duration: 0.8, 
+        ease: "back.out(1.5)",
+        scrollTrigger: {
+          trigger: containerRef.current,
+          start: 'top 85%',
+        }
+      }
+    );
+  }, { scope: containerRef });
 
   const handleChat = async () => {
     if (!input.trim() || loading) return;
@@ -42,7 +65,7 @@ const GeminiAssistant: React.FC = () => {
   };
 
   return (
-    <div className="max-w-3xl mx-auto glass rounded-[2.5rem] overflow-hidden shadow-2xl border-white/5 relative">
+    <div ref={containerRef} className="max-w-3xl mx-auto glass rounded-[2.5rem] overflow-hidden shadow-2xl border-white/5 relative opacity-0">
       <div className="bg-white/5 border-b border-white/10 px-6 py-4 flex items-center justify-between">
         <div className="flex gap-1.5">
           <div className="w-3 h-3 rounded-full bg-rose-500/50"></div>

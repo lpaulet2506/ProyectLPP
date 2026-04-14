@@ -1,13 +1,19 @@
 
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { useLanguage } from '../src/LanguageContext';
 import { useProfile } from '../src/ProfileContext';
-import { motion, AnimatePresence } from 'framer-motion';
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { useGSAP } from '@gsap/react';
+
+gsap.registerPlugin(useGSAP, ScrollTrigger);
 
 const Services: React.FC = () => {
   const { t } = useLanguage();
   const { profile } = useProfile();
   const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
+  const containerRef = useRef<HTMLElement>(null);
+  const cardsRef = useRef<(HTMLDivElement | null)[]>([]);
 
   const services = profile === 'business' ? t.services.business : t.services.individual;
 
@@ -15,6 +21,35 @@ const Services: React.FC = () => {
   React.useEffect(() => {
     setExpandedIndex(null);
   }, [profile]);
+
+  useGSAP(() => {
+    const tl = gsap.timeline({
+      scrollTrigger: {
+        trigger: containerRef.current,
+        start: 'top 80%',
+        end: 'bottom 20%',
+        toggleActions: 'play none none none',
+      }
+    });
+
+    tl.fromTo('.services-header', 
+      { opacity: 0, y: 30 }, 
+      { opacity: 1, y: 0, duration: 0.8, ease: 'power3.out' }
+    );
+
+    tl.fromTo(cardsRef.current,
+      { opacity: 0, y: 40, scale: 0.95 },
+      { 
+        opacity: 1, 
+        y: 0, 
+        scale: 1, 
+        duration: 0.6, 
+        stagger: 0.15,
+        ease: 'back.out(1.7)'
+      },
+      "-=0.4"
+    );
+  }, { scope: containerRef, dependencies: [profile] });
 
   const icons = [
     'M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4',
@@ -34,37 +69,10 @@ const Services: React.FC = () => {
     'from-cyan-400 to-blue-500'
   ];
 
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.1
-      }
-    }
-  };
-
-  const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: {
-        duration: 0.6
-      }
-    }
-  };
-
   return (
-    <section id="services" className="py-20 relative">
+    <section ref={containerRef} id="services" className="py-20 relative">
       <div className="container mx-auto px-6">
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-6"
-        >
+        <div className="services-header flex flex-col md:flex-row md:items-end justify-between mb-16 gap-6 opacity-0">
           <div className="max-w-xl">
             <h2 className="text-4xl font-extrabold text-white mb-4 tracking-tight">
               {t.services.title.split(' ')[0]} <span className="text-indigo-500">{t.services.title.split(' ')[1]}</span>
@@ -74,30 +82,19 @@ const Services: React.FC = () => {
           <div className="mono text-xs text-indigo-400 tracking-widest border-b border-indigo-500/30 pb-1">
             {t.services.version}
           </div>
-        </motion.div>
+        </div>
         
-        <motion.div 
-          variants={containerVariants}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true }}
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 items-start"
-        >
-          <AnimatePresence mode="popLayout">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 items-start">
             {services.map((service, index) => {
               const isExpanded = expandedIndex === index;
               return (
-                <motion.div 
+                <div 
                   key={`${profile}-${service.title}`}
-                  layout
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.9 }}
-                  variants={itemVariants}
-                  className={`group relative glass p-8 rounded-[2rem] transition-all duration-500 border border-white/5 ${isExpanded ? 'ring-2 ring-indigo-500/50 shadow-2xl shadow-indigo-500/10 bg-white/5' : 'hover:border-indigo-500/50 hover:-translate-y-2'}`}
+                  ref={el => cardsRef.current[index] = el}
+                  className={`group relative glass p-8 rounded-[2rem] transition-all duration-500 border border-white/5 opacity-0 ${isExpanded ? 'ring-2 ring-indigo-500/50 shadow-2xl shadow-indigo-500/10 bg-white/5' : 'hover:border-indigo-500/50 hover:-translate-y-2'}`}
                 >
                 {/* Animated Gradient Background on Hover */}
-                <div className={`absolute inset-0 bg-gradient-to-br ${accents[index % accents.length]} opacity-0 group-hover:opacity-[0.03] transition-opacity duration-500`}></div>
+                <div className={`absolute inset-0 bg-gradient-to-br ${accents[index % accents.length]} opacity-0 group-hover:opacity-[0.03] transition-opacity duration-500 rounded-[2rem]`}></div>
                 
                 <div className={`w-14 h-14 rounded-2xl flex items-center justify-center mb-8 bg-gradient-to-br ${accents[index % accents.length]} text-white shadow-lg shadow-black/20 transform group-hover:scale-110 group-hover:rotate-3 transition duration-500`}>
                   <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -108,14 +105,11 @@ const Services: React.FC = () => {
                 <h3 className="text-2xl font-bold mb-4 text-white">{service.title}</h3>
                 <p className="text-slate-400 leading-relaxed mb-6 group-hover:text-slate-300 transition">{service.description}</p>
                 
-                <AnimatePresence initial={false}>
-                  {isExpanded && service.details && (
-                    <motion.div
-                      initial={{ opacity: 0, height: 0 }}
-                      animate={{ opacity: 1, height: 'auto' }}
-                      exit={{ opacity: 0, height: 0 }}
-                      transition={{ duration: 0.3, ease: "easeInOut" }}
-                    >
+                <div 
+                  className={`overflow-hidden transition-all duration-500 ease-in-out`}
+                  style={{ maxHeight: isExpanded ? '500px' : '0', opacity: isExpanded ? 1 : 0 }}
+                >
+                  {service.details && (
                       <div className="pt-6 border-t border-white/10 mt-4 space-y-4">
                         <h4 className="text-xs font-bold text-indigo-400 uppercase tracking-widest">{service.detailTitle || 'Detalles:'}</h4>
                         <ul className="space-y-3">
@@ -127,9 +121,8 @@ const Services: React.FC = () => {
                           ))}
                         </ul>
                       </div>
-                    </motion.div>
                   )}
-                </AnimatePresence>
+                </div>
 
                 <button 
                   type="button"
@@ -140,21 +133,19 @@ const Services: React.FC = () => {
                   className="mt-8 flex items-center gap-2 text-sm font-bold text-indigo-400 uppercase tracking-widest transition-all duration-300 hover:text-indigo-300 cursor-pointer relative z-20"
                 >
                   {isExpanded ? 'Ver menos' : t.services.learnMore} 
-                  <motion.svg 
-                    animate={{ rotate: isExpanded ? 180 : 0 }}
-                    className="w-4 h-4" 
+                  <svg 
+                    className={`w-4 h-4 transition-transform duration-300 ${isExpanded ? 'rotate-180' : ''}`}
                     fill="none" 
                     stroke="currentColor" 
                     viewBox="0 0 24 24"
                   >
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path>
-                  </motion.svg>
+                  </svg>
                 </button>
-              </motion.div>
+              </div>
             );
           })}
-          </AnimatePresence>
-        </motion.div>
+        </div>
       </div>
     </section>
   );
