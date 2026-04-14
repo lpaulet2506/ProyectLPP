@@ -3,6 +3,7 @@ import React, { useState, useRef } from 'react';
 import Navbar from './components/Navbar';
 import Hero from './components/Hero';
 import Services from './components/Services';
+import TechShowcase from './components/TechShowcase';
 import GeminiAssistant from './components/GeminiAssistant';
 import Contact from './components/Contact';
 import Footer from './components/Footer';
@@ -45,6 +46,7 @@ const AppContent: React.FC = () => {
         <Hero />
 
         <Services />
+        <TechShowcase />
 
         {/* AI Tech Section */}
         <section ref={aiSectionRef} className="py-20 relative">
