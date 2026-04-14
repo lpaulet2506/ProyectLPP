@@ -15,7 +15,7 @@ export const translations = {
         subtitle: 'Soluciones integrales de implementación tecnológica para negocios. Desde el código de alto rendimiento hasta la infraestructura física optimizada.',
       },
       individual: {
-        title: 'Tu informático |en Chamberí',
+        title: 'Tu informático |en Madrid',
         subtitle: 'Soporte técnico profesional en Madrid. Arreglo tu ordenador a domicilio, te enseño a usarlo y optimizo tus dispositivos en la zona de Chamberí.',
       },
       startProject: 'Iniciar Proyecto',
