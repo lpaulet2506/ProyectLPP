@@ -19,27 +19,27 @@ const Hero: React.FC = () => {
 
     tl.fromTo('.badge', 
       { opacity: 0, y: 30 }, 
-      { opacity: 1, y: 0, duration: 0.8 }
+      { opacity: 1, y: 0, duration: 1, ease: 'expo.out' }
     )
-    .fromTo('.hero-title', 
-      { opacity: 0, y: 40 }, 
-      { opacity: 1, y: 0, duration: 0.8 }, 
-      "-=0.6"
+    .fromTo('.hero-title-line', 
+      { yPercent: 120, opacity: 0, rotationZ: 3, transformOrigin: 'left top' }, 
+      { yPercent: 0, opacity: 1, rotationZ: 0, duration: 1.4, stagger: 0.15, ease: 'expo.out' }, 
+      "-=0.7"
     )
     .fromTo('.hero-subtitle', 
-      { opacity: 0, y: 20 }, 
-      { opacity: 1, y: 0, duration: 0.8 }, 
-      "-=0.6"
+      { yPercent: 120, opacity: 0 }, 
+      { yPercent: 0, opacity: 1, duration: 1.2, ease: 'expo.out' }, 
+      "-=1.1"
     )
     .fromTo('.hero-buttons', 
       { opacity: 0, y: 20 }, 
-      { opacity: 1, y: 0, duration: 0.8 }, 
-      "-=0.6"
+      { opacity: 1, y: 0, duration: 1, ease: 'expo.out' }, 
+      "-=0.8"
     )
     .fromTo('.stats-container', 
       { opacity: 0 }, 
-      { opacity: 1, duration: 1 }, 
-      "-=0.4"
+      { opacity: 1, duration: 1.2 }, 
+      "-=0.5"
     );
       
     gsap.fromTo('.hero-graphic', 
@@ -88,22 +88,30 @@ const Hero: React.FC = () => {
             {t.hero.available}
           </div>
           
-          <h1 className="hero-title text-6xl lg:text-8xl font-black leading-[1.1] text-white tracking-tighter opacity-0">
+          <h1 className="hero-title-container text-6xl lg:text-8xl font-black leading-[1.1] text-white tracking-tighter">
             {heroContent.title.includes('|') ? (
               <>
-                {heroContent.title.split('|')[0]} <br />
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 via-purple-500 to-cyan-400">
-                  {heroContent.title.split('|')[1]}
-                </span>
+                <div className="overflow-hidden mb-2">
+                  <div className="hero-title-line opacity-0">{heroContent.title.split('|')[0]}</div>
+                </div>
+                <div className="overflow-hidden">
+                  <div className="hero-title-line opacity-0 text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 via-purple-500 to-cyan-400">
+                    {heroContent.title.split('|')[1]}
+                  </div>
+                </div>
               </>
             ) : (
-              heroContent.title
+              <div className="overflow-hidden">
+                <div className="hero-title-line opacity-0">{heroContent.title}</div>
+              </div>
             )}
           </h1>
           
-          <p className="hero-subtitle mt-8 text-xl text-slate-400 leading-relaxed max-w-2xl opacity-0">
-            {heroContent.subtitle}
-          </p>
+          <div className="overflow-hidden mt-8">
+            <p className="hero-subtitle text-xl text-slate-400 leading-relaxed max-w-2xl opacity-0">
+              {heroContent.subtitle}
+            </p>
+          </div>
           
           <div className="hero-buttons mt-12 flex flex-col sm:flex-row gap-6 opacity-0">
             <a 

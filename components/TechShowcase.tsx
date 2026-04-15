@@ -42,13 +42,13 @@ const TechShowcaseBusiness: React.FC = () => {
     gsap.set(panels, { zIndex: (i) => i });
 
     if (panels.length > 1) {
-      gsap.set(panels.slice(1), { yPercent: 100, autoAlpha: 0 });
+      gsap.set(panels.slice(1), { yPercent: 100 });
 
       panels.slice(1).forEach(panel => {
         const textElements = panel.querySelectorAll('.slide-text-elem');
         const img = panel.querySelector('.slide-bg');
         if (textElements.length > 0) {
-          gsap.set(textElements, { y: 80, opacity: 0, rotationX: -30, scale: 0.9 });
+          gsap.set(textElements, { yPercent: 120, opacity: 0, rotationZ: 3, transformOrigin: "left top" });
         }
         if (img) {
           gsap.set(img, { scale: 1.3, yPercent: 20 });
@@ -70,10 +70,10 @@ const TechShowcaseBusiness: React.FC = () => {
     panels.forEach((panel, i) => {
       if (i === 0) {
         gsap.fromTo(panel.querySelectorAll('.slide-text-elem'),
-          { y: 50, opacity: 0, rotationX: -20 },
+          { yPercent: 120, opacity: 0, rotationZ: 3, transformOrigin: "left top" },
           {
-            y: 0, opacity: 1, rotationX: 0,
-            duration: 1, stagger: 0.15, ease: 'power3.out',
+            yPercent: 0, opacity: 1, rotationZ: 0,
+            duration: 1.2, stagger: 0.15, ease: 'expo.out',
             scrollTrigger: {
               trigger: containerRef.current,
               start: "top 80%",
@@ -85,24 +85,22 @@ const TechShowcaseBusiness: React.FC = () => {
         const textElements = panel.querySelectorAll('.slide-text-elem');
         const img = panel.querySelector('.slide-bg');
 
-        tl.fromTo(panel,
-          { yPercent: 100, autoAlpha: 0 },
-          { yPercent: 0, autoAlpha: 1, ease: "none", duration: 1 },
-          "+=0.1"
-        );
+        // Animamos a yPercent: 0 usando .to()
+        tl.to(panel,
+           { yPercent: 0, ease: "none", duration: 1 },
+           "+=0.1"
+         );
 
         if (img) {
-          tl.fromTo(img, 
-            { scale: 1.3, yPercent: 20 }, 
+          tl.to(img, 
             { scale: 1, yPercent: 0, duration: 1, ease: 'none' }, 
             "<" 
           );
         }
 
         if (textElements.length > 0) {
-          tl.fromTo(textElements, 
-            { y: 80, opacity: 0, rotationX: -30, scale: 0.9 }, 
-            { y: 0, opacity: 1, rotationX: 0, scale: 1, duration: 0.5, stagger: 0.1, ease: "power2.out" }, 
+          tl.to(textElements, 
+            { yPercent: 0, opacity: 1, rotationZ: 0, duration: 1, stagger: 0.15, ease: "expo.out" }, 
             "<0.3" 
           );
         }
@@ -121,15 +119,21 @@ const TechShowcaseBusiness: React.FC = () => {
               <div className="absolute inset-0 bg-gradient-to-b from-slate-950/40 via-slate-950/80 to-slate-950"></div>
             </div>
             <div className="slide-content relative z-20 flex flex-col items-center justify-center p-8 max-w-4xl text-center perspective-1000">
-              <div className="slide-text-elem opacity-0 mb-6 px-5 py-2 rounded-full border border-white/20 bg-white/5 backdrop-blur-md font-bold text-xs tracking-[0.2em] uppercase">
-                <span className={`text-transparent bg-clip-text bg-gradient-to-r ${sec.color}`}>{sec.badge}</span>
+              <div className="overflow-hidden mb-6">
+                <div className="slide-text-elem px-5 py-2 rounded-full border border-white/20 bg-white/5 backdrop-blur-md font-bold text-xs tracking-[0.2em] uppercase">
+                  <span className={`text-transparent bg-clip-text bg-gradient-to-r ${sec.color}`}>{sec.badge}</span>
+                </div>
               </div>
-              <h2 className="slide-text-elem opacity-0 text-5xl md:text-7xl font-black text-white mb-6 tracking-tighter drop-shadow-2xl">
-                {sec.title}
-              </h2>
-              <p className="slide-text-elem opacity-0 text-xl md:text-2xl text-slate-300 leading-relaxed font-light drop-shadow-md">
-                {sec.subtitle}
-              </p>
+              <div className="overflow-hidden mb-6 py-2">
+                <h2 className="slide-text-elem text-5xl md:text-7xl font-black text-white tracking-tighter drop-shadow-2xl">
+                  {sec.title}
+                </h2>
+              </div>
+              <div className="overflow-hidden">
+                <p className="slide-text-elem text-xl md:text-2xl text-slate-300 leading-relaxed font-light drop-shadow-md">
+                  {sec.subtitle}
+                </p>
+              </div>
             </div>
           </div>
         ))}
@@ -178,13 +182,13 @@ const TechShowcaseIndividual: React.FC = () => {
     gsap.set(panels, { zIndex: (i) => i });
 
     if (panels.length > 1) {
-      gsap.set(panels.slice(1), { yPercent: 100, autoAlpha: 0 });
+      gsap.set(panels.slice(1), { yPercent: 100 });
 
       panels.slice(1).forEach(panel => {
         const textElements = panel.querySelectorAll('.slide-text-elem');
         const img = panel.querySelector('.slide-bg');
         if (textElements.length > 0) {
-          gsap.set(textElements, { y: 80, opacity: 0, rotationX: -30, scale: 0.9 });
+          gsap.set(textElements, { yPercent: 120, opacity: 0, rotationZ: 3, transformOrigin: "left top" });
         }
         if (img) {
           gsap.set(img, { scale: 1.3, yPercent: 20 });
@@ -206,10 +210,10 @@ const TechShowcaseIndividual: React.FC = () => {
     panels.forEach((panel, i) => {
       if (i === 0) {
         gsap.fromTo(panel.querySelectorAll('.slide-text-elem'),
-          { y: 50, opacity: 0, rotationX: -20 },
+          { yPercent: 120, opacity: 0, rotationZ: 3, transformOrigin: "left top" },
           {
-            y: 0, opacity: 1, rotationX: 0,
-            duration: 1, stagger: 0.15, ease: 'power3.out',
+            yPercent: 0, opacity: 1, rotationZ: 0,
+            duration: 1.2, stagger: 0.15, ease: 'expo.out',
             scrollTrigger: {
               trigger: containerRef.current,
               start: "top 80%",
@@ -221,24 +225,22 @@ const TechShowcaseIndividual: React.FC = () => {
         const textElements = panel.querySelectorAll('.slide-text-elem');
         const img = panel.querySelector('.slide-bg');
 
-        tl.fromTo(panel,
-          { yPercent: 100, autoAlpha: 0 },
-          { yPercent: 0, autoAlpha: 1, ease: "none", duration: 1 },
+        // Animamos a yPercent: 0 usando .to() ya que el set inicial tiene yPercent: 100
+        tl.to(panel,
+          { yPercent: 0, ease: "none", duration: 1 },
           "+=0.1"
         );
 
         if (img) {
-          tl.fromTo(img, 
-            { scale: 1.3, yPercent: 20 }, 
+          tl.to(img, 
             { scale: 1, yPercent: 0, duration: 1, ease: 'none' }, 
             "<" 
           );
         }
 
         if (textElements.length > 0) {
-          tl.fromTo(textElements, 
-            { y: 80, opacity: 0, rotationX: -30, scale: 0.9 }, 
-            { y: 0, opacity: 1, rotationX: 0, scale: 1, duration: 0.5, stagger: 0.1, ease: "power2.out" }, 
+          tl.to(textElements, 
+            { yPercent: 0, opacity: 1, rotationZ: 0, duration: 1, stagger: 0.15, ease: "expo.out" }, 
             "<0.3" 
           );
         }
@@ -257,15 +259,21 @@ const TechShowcaseIndividual: React.FC = () => {
               <div className="absolute inset-0 bg-gradient-to-b from-slate-950/40 via-slate-950/80 to-slate-950"></div>
             </div>
             <div className="slide-content relative z-20 flex flex-col items-center justify-center p-8 max-w-4xl text-center perspective-1000">
-              <div className="slide-text-elem opacity-0 mb-6 px-5 py-2 rounded-full border border-white/20 bg-white/5 backdrop-blur-md font-bold text-xs tracking-[0.2em] uppercase">
-                <span className={`text-transparent bg-clip-text bg-gradient-to-r ${sec.color}`}>{sec.badge}</span>
+              <div className="overflow-hidden mb-6">
+                <div className="slide-text-elem px-5 py-2 rounded-full border border-white/20 bg-white/5 backdrop-blur-md font-bold text-xs tracking-[0.2em] uppercase">
+                  <span className={`text-transparent bg-clip-text bg-gradient-to-r ${sec.color}`}>{sec.badge}</span>
+                </div>
               </div>
-              <h2 className="slide-text-elem opacity-0 text-5xl md:text-7xl font-black text-white mb-6 tracking-tighter drop-shadow-2xl">
-                {sec.title}
-              </h2>
-              <p className="slide-text-elem opacity-0 text-xl md:text-2xl text-slate-300 leading-relaxed font-light drop-shadow-md">
-                {sec.subtitle}
-              </p>
+              <div className="overflow-hidden mb-6 py-2">
+                <h2 className="slide-text-elem text-5xl md:text-7xl font-black text-white tracking-tighter drop-shadow-2xl">
+                  {sec.title}
+                </h2>
+              </div>
+              <div className="overflow-hidden">
+                <p className="slide-text-elem text-xl md:text-2xl text-slate-300 leading-relaxed font-light drop-shadow-md">
+                  {sec.subtitle}
+                </p>
+              </div>
             </div>
           </div>
         ))}
