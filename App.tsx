@@ -35,10 +35,12 @@ const AppContent: React.FC = () => {
   }, { scope: aiSectionRef });
 
   return (
-    <div className="min-h-screen relative overflow-x-hidden">
+    <div className="min-h-screen relative overflow-x-clip">
       {/* Background Decorative Elements */}
-      <div className="glow-mesh top-[-10%] left-[-10%]" />
-      <div className="glow-mesh bottom-[-10%] right-[-10%] opacity-50" />
+      <div className="fixed inset-0 overflow-hidden pointer-events-none z-[-1]">
+        <div className="glow-mesh top-[-10%] left-[-10%]" />
+        <div className="glow-mesh bottom-[-10%] right-[-10%] opacity-50" />
+      </div>
 
       <Navbar onAskMore={() => { }} />
 

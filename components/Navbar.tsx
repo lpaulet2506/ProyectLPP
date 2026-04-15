@@ -5,9 +5,10 @@ import { useProfile } from '../src/ProfileContext';
 import { Language } from '../src/translations';
 import { Menu, X } from 'lucide-react';
 import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useGSAP } from '@gsap/react';
 
-gsap.registerPlugin(useGSAP);
+gsap.registerPlugin(useGSAP, ScrollTrigger);
 
 interface NavbarProps {
   onAskMore: () => void;
@@ -18,6 +19,20 @@ const Navbar: React.FC<NavbarProps> = ({ onAskMore }) => {
   const { profile, setProfile } = useProfile();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  
+  const handleProfileChange = (newProfile: 'business' | 'individual') => {
+    // 1. Iniciar scroll al principio
+    window.scrollTo({ top: 0, behavior: 'instant' });
+    
+    // 2. Cambiar perfil
+    setProfile(newProfile);
+    setIsMobileMenuOpen(false);
+    
+    // 3. Forzar recalculo de GSAP después del render del nuevo DOM
+    setTimeout(() => {
+      ScrollTrigger.refresh();
+    }, 100);
+  };
   const navRef = useRef<HTMLElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -101,68 +116,69 @@ const Navbar: React.FC<NavbarProps> = ({ onAskMore }) => {
             <span className="text-lg md:text-xl font-bold tracking-tighter text-white hidden sm:block md:block">LppDev<span className="text-indigo-500">.</span></span>
           </div>
           
-          {/* Opciones de Perfiles (Se muestran tanto en móvil como en escritorio en el centro) */}
-          <div className="nav-profile flex flex-1 justify-center items-center gap-3 sm:gap-6 md:hidden px-2 opacity-0">
-            <button 
-              onClick={() => setProfile('business')}
-              className={`transition font-semibold text-xs sm:text-sm tracking-wide relative group ${
-                profile === 'business' ? 'text-indigo-400' : 'text-slate-300 hover:text-white'
-              }`}
-            >
-              {t.nav.business}
-              <span className={`absolute -bottom-1 left-0 h-[2px] bg-indigo-500 transition-all ${
-                profile === 'business' ? 'w-full' : 'w-0 group-hover:w-full'
-              }`}></span>
-            </button>
-            <div className="h-4 w-px bg-slate-700/50"></div>
-            <button 
-              onClick={() => setProfile('individual')}
-              className={`transition font-semibold text-xs sm:text-sm tracking-wide relative group ${
-                profile === 'individual' ? 'text-indigo-400' : 'text-slate-300 hover:text-white'
-              }`}
-            >
-              {t.nav.individual}
-              <span className={`absolute -bottom-1 left-0 h-[2px] bg-indigo-500 transition-all ${
-                profile === 'individual' ? 'w-full' : 'w-0 group-hover:w-full'
-              }`}></span>
-            </button>
+          {/* Opciones de Perfiles - Móvil (pill toggle centrado) */}
+          <div className="nav-profile flex flex-1 justify-center items-center md:hidden px-2 opacity-0">
+            <div className="flex bg-white/5 border border-white/10 rounded-lg p-1">
+              <button
+                onClick={() => handleProfileChange('business')}
+                className={`px-3 py-1.5 rounded-md text-xs font-bold transition-all whitespace-nowrap ${
+                  profile === 'business'
+                    ? 'bg-indigo-600 text-white shadow-lg'
+                    : 'text-slate-400 hover:text-white'
+                }`}
+              >
+                {t.nav.business}
+              </button>
+              <button
+                onClick={() => handleProfileChange('individual')}
+                className={`px-3 py-1.5 rounded-md text-xs font-bold transition-all whitespace-nowrap ${
+                  profile === 'individual'
+                    ? 'bg-indigo-600 text-white shadow-lg'
+                    : 'text-slate-400 hover:text-white'
+                }`}
+              >
+                {t.nav.individual}
+              </button>
+            </div>
           </div>
 
           {/* Menú Desktop (derecha) */}
-          <div className="hidden md:flex space-x-8 items-center flex-shrink-0">
-            <button 
-              onClick={() => setProfile('business')}
-              className={`transition font-medium text-sm tracking-wide relative group ${
-                profile === 'business' ? 'text-white' : 'text-slate-400 hover:text-white'
-              }`}
-            >
-              {t.nav.business}
-              <span className={`absolute -bottom-1 left-0 h-0.5 bg-indigo-500 transition-all ${
-                profile === 'business' ? 'w-full' : 'w-0 group-hover:w-full'
-              }`}></span>
-            </button>
-            <button 
-              onClick={() => setProfile('individual')}
-              className={`transition font-medium text-sm tracking-wide relative group ${
-                profile === 'individual' ? 'text-white' : 'text-slate-400 hover:text-white'
-              }`}
-            >
-              {t.nav.individual}
-              <span className={`absolute -bottom-1 left-0 h-0.5 bg-indigo-500 transition-all ${
-                profile === 'individual' ? 'w-full' : 'w-0 group-hover:w-full'
-              }`}></span>
-            </button>
+          <div className="hidden md:flex gap-4 items-center flex-shrink-0">
+            {/* Profile pill toggle */}
+            <div className="flex bg-white/5 rounded-lg p-1 border border-white/10">
+              <button
+                onClick={() => handleProfileChange('business')}
+                className={`px-3 py-1.5 rounded-md text-xs font-bold transition-all whitespace-nowrap ${
+                  profile === 'business'
+                    ? 'bg-indigo-600 text-white shadow-lg'
+                    : 'text-slate-500 hover:text-slate-300'
+                }`}
+              >
+                {t.nav.business}
+              </button>
+              <button
+                onClick={() => handleProfileChange('individual')}
+                className={`px-3 py-1.5 rounded-md text-xs font-bold transition-all whitespace-nowrap ${
+                  profile === 'individual'
+                    ? 'bg-indigo-600 text-white shadow-lg'
+                    : 'text-slate-500 hover:text-slate-300'
+                }`}
+              >
+                {t.nav.individual}
+              </button>
+            </div>
 
             <div className="h-6 w-px bg-slate-700"></div>
 
-            <div className="flex bg-white/5 rounded-lg p-1 border border-white/10 mr-4">
+            {/* Language switcher */}
+            <div className="flex bg-white/5 rounded-lg p-1 border border-white/10">
               {(['es', 'en', 'de'] as Language[]).map((lang) => (
                 <button
                   key={lang}
                   onClick={() => setLanguage(lang)}
                   className={`px-2 py-1 rounded text-[10px] font-bold transition-all ${
-                    language === lang 
-                      ? 'bg-indigo-600 text-white shadow-lg' 
+                    language === lang
+                      ? 'bg-indigo-600 text-white shadow-lg'
                       : 'text-slate-500 hover:text-slate-300'
                   }`}
                 >
@@ -171,7 +187,7 @@ const Navbar: React.FC<NavbarProps> = ({ onAskMore }) => {
               ))}
             </div>
 
-            <button 
+            <button
               onClick={handleContactClick}
               className="bg-indigo-600 hover:bg-indigo-500 text-white px-6 py-2.5 rounded-xl font-bold text-sm transition-all transform active:scale-95 shadow-lg shadow-indigo-600/20"
             >
